@@ -15,7 +15,7 @@ Supported models
 Requirements
 ------------
 
-- Redmine `>= 2.1.0`, `>= 3.x`
+- Redmine `>= 2.1.0`, `3.x`
 
 
 Installation
