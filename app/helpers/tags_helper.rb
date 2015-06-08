@@ -69,6 +69,7 @@ module TagsHelper
       # prevent ActsAsTaggableOn::TagsHelper from calling `all`
       # otherwise we will need sort tags after `tag_cloud`
       tags = tags.all if tags.respond_to?(:all)
+      tags = tags.to_a
 
       case sorting = "#{RedmineTags.settings[:issues_sort_by]}:#{RedmineTags.settings[:issues_sort_order]}"
         when "name:asc";    tags.sort! { |a,b| a.name <=> b.name }

@@ -23,24 +23,21 @@ module RedmineTags
     module IssuePatch
       def self.included(base)
         base.extend(ClassMethods)
-        base.send(:include, InstanceMethods)
 
         base.class_eval do
           unloadable
           acts_as_taggable
 
           searchable_options[:columns] << "#{ActsAsTaggableOn::Tag.table_name}.name"
-          searchable_options[:include] << :tags
+          searchable_options[:include] << :tags if searchable_options[:include]
 
           scope :on_project, lambda { |project|
             project = Project.find(project) unless project.is_a? Project
-            { :conditions => "#{project.project_condition(Setting.display_subprojects_issues?)}" }
+            where("#{project.project_condition(Setting.display_subprojects_issues?)}")
           }
 
 #          with this changes do not saved in journal
 #          Issue.safe_attributes 'tag_list'
-
-          alias_method_chain :copy_from, :redmine_tags
         end
       end
 
@@ -58,7 +55,6 @@ module RedmineTags
           ids_scope = ids_scope.open.joins(:status) if options[:open_only]
 
           conditions = [""]
-
           sql_query = ids_scope.to_sql
 
           conditions[0] << <<-SQL
@@ -92,18 +88,6 @@ module RedmineTags
           unused.each(&:destroy)
         end
       end
-
-      module InstanceMethods
-
-        def copy_from_with_redmine_tags(arg, options={})
-          copy_from_without_redmine_tags(arg, options)
-          issue = arg.is_a?(Issue) ? arg : Issue.visible.find(arg)
-          self.tag_list = issue.tag_list
-          self
-        end
-
-      end
-
     end
   end
 end
